@@ -49,7 +49,7 @@ source .venv/bin/activate
 
 Install the required dependencies in the virtual environment :
 ```bash
-pip install --upgrade pip #빼도 됨
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
