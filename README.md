@@ -1,17 +1,26 @@
-# SaveMate-chatbot 🤖
+# 명품인재 X Upstage LLM Innovators Challenge
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/yvann_hub?style=social)](https://twitter.com/yvann_hub)
+## 마이데이터 기반 통합 금융상품 추천 대화형 AI 서비스 개발
 
+### SaveMate-chatbot 🤖
 
-### An AI chatbot featuring conversational memory, designed to enable users to discuss their CSV, PDF, TXT data and YTB videos in a more intuitive manner. 🚀
-![Robby](golden_retriever.jpg)
-Robby the Robot from [Forbidden Planet](https://youtu.be/bflfQN_YsTM)
+#### Golden Retriever팀 : 진혜정, 김소희, 이명주, 김도연
+![Save Mate](golden_retriever.jpg)
 
-#### For better understanding, see my medium article 🖖 : [Build a chat-bot over your CSV data](https://medium.com/@yvann-hub/build-a-chatbot-on-your-csv-data-with-langchain-and-openai-ed121f85f0cd)
+## 프로젝트 개요
+### 프로젝트 주제
+통합 금융 상품 추천 대화형 AI 서비스 'Save Mate' 제안 및 프로토타입 개발
+### 프로젝트 목표
+여러 금융기관의 상품을 통합적으로 관리하는 마이데이터 DB와 사용자의 입력에 알맞은 금융 상품을 추천하고자 한다.
+### 프로젝트 배경
+복잡한 데이터 처리 없이 데이터로부터 필요한 정보를 ‘대화’를 통해 바로 얻어내고, 간편하게 맞춤형 상품을 추천받을 수 있다. 
 
-## Quick Start 🚀 (Website in maintenance)
+## 설치 방법 'Running Locally 💻'
+Follow these steps to set up and run the service locally :
 
-[![Robby-Chatbot](https://img.shields.io/static/v1?label=Robby-Chatbot&message=Visit%20Website&color=ffffff&labelColor=ADD8E6&style=for-the-badge)](https://robby-chatbot.streamlit.app/)
+### Prerequisites
+- Python 3.11.2
+- Git
 
 ##Quick Start (streamlit.app 배포)
 https://savemate-chat1.streamlit.app/
