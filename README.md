@@ -27,7 +27,7 @@ Follow these steps to set up and run the service locally :
 ### Installation
 Clone the repository :
 
-`git clone https://github.com/soheui-mars/CHATBOT_BASIC.git`
+`git clone https://github.com/MYUNGJULEE/SAVEMATE-CHAT`
 
 
 Navigate to the project directory :
