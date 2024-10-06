@@ -4,14 +4,13 @@ import streamlit as st
 from langchain_upstage import ChatUpstage
 from langchain_core.prompts import PromptTemplate
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_chroma import Chroma
-#from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain_upstage import UpstageEmbeddings
 from langchain_core.output_parsers import StrOutputParser
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from langchain_upstage import UpstageGroundednessCheck
-#from tavily import TavilyClient
+
 
 
 class Chatbot:
@@ -19,29 +18,28 @@ class Chatbot:
     UPSTAGE_API_KEY = os.getenv('UPSTAGE_API_KEY')
 
     def __init__(self, retriever, data=None): 
+        # path 설정
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.retriever = retriever
         
-        # data 폴더에 있는 mydata_dummy2.csv 활용
+        # data 폴더에 있는 mydata_dummy.csv 활용
         if data is None:
-            self.data_path = os.path.join(base_path, 'src', 'data', 'mydata_dummy2.csv')
+            self.data_path = os.path.join(base_path, 'src', 'data', 'mydata_dummy.csv')
         else:
             self.data_path = os.path.join(base_path, data)
         self.user_data = pd.read_csv(self.data_path)
+        self.llm = ChatUpstage(api_key=self.UPSTAGE_API_KEY) ## 💡 UPSTAGE CHAT MODEL ##
 
-        # Initialize ChatUpstage API
-        self.llm = ChatUpstage(api_key=self.UPSTAGE_API_KEY)
-
-        
-        # 사용자의 상품 및 서비스, 추천 관련 질문 답변 프로픔트
-        # 가장 적합한 금융 상품 추천할때의 지침 
-        # 역할 정의 : 서비스 & 상품에 대한 질문 답변 & 상품 추천
-        # 응답 : 한국어, 친절하고 간결한 bullet points로 답변
-        # 특정 상활별 응답 
-            # - 예금, 적금은 각 관련 PDF만 참고, 모호한 질문은 두 항목 모두 참조
-            # - 금액 미지정 : 해당 상품에 적용 가능한 최대 금액 적용
-            # - 특정 상품면 언급 시 : 해당 상품 PDF만 참조 
-        # 상품 추천 형식 
+        # qa_system_prompt 설명
+            # 사용자의 상품 및 서비스, 추천 관련 질문 답변 프로픔트
+            # 가장 적합한 금융 상품 추천할때의 지침 
+            # 역할 정의 : 서비스 / 상품에 대한 질문 답변 & 상품 추천
+            # 응답 : 한국어, 친절하고 간결한 bullet points로 답변
+            # 특정 상활별 응답 
+                # - 예금, 적금은 각 관련 PDF만 참고, 모호한 질문은 두 항목 모두 참조
+                # - 금액 미지정 : 해당 상품에 적용 가능한 최대 금액 적용
+                # - 특정 상품면 언급 시 : 해당 상품 PDF만 참조 
+            # 상품 추천 답변 형식 
 
         self.qa_system_prompt = """
 
@@ -81,21 +79,22 @@ class Chatbot:
         Context: {context}
         """
 
-        ###추가
-        # 상태를 관리하여 첫 메시지가 한 번만 출력되도록 설정
-        self.first_message_displayed = False  # 첫 메시지를 한 번만 표시하기 위한 상태 관리
+        
+        self.first_message_displayed = False  # Streamlit, 첫 메시지가 한 번만 출력되도록 설정
 
 
     def get_user_details(self, user_id):
-        # 주어진 user_id에 해당하는 사용자 은행 정보 추출
-        # 개인 맞춤형 추천을 하기 위함 
+        """
+        주어진 user_id에 해당하는 사용자 은행 정보 추출 함수
+        개인 맞춤형 추천을 하기 위함 
+        """
         user_details = self.user_data[self.user_data['User ID'] == user_id]
         return user_details
 
     def generate_responses(self, question, context, chat_history, user_id=None, product_type=None, max_retries=3):
         """
-        사용자가 입력한 질문에 대한 응답을 생성
-        가장 적합한 금융 상품을 추천, 이자 계산에 대한 단계별 설명을 제공하도록 설계
+        사용자가 입력한 질문에 대한 응답 생성 함수
+        가장 적합한 금융 상품을 추천, 이자 계산에 대한 단계별 설명을 제공 프롬프트 포함
 
         question (str): 사용자 쿼리
         context (str): 관련 PDF 내용 추출
@@ -109,22 +108,22 @@ class Chatbot:
         retry_count = 0 # groundedness check 시도 횟수
         gc_result = None # goundedness check result default to None
         
-        # 추천 질문 및 이자 계산을 식별하기 위한 키워드를 정의
+        # 추천 질문 및 이자 계산을 식별하기 위한 키워드 정의
         recommendation_keywords = ["추천", "recommend", "추천해", "추천해줘", "추천해 주세요", "추천 해줘"]
         simple_interest_keywords = ["단리"]
         compound_interest_keywords = ["복리", "연복리", "월복리"]
         period_interest_keywords = ["가입기간별 기본이자율"]
 
-         # 질문에 추천 관련 키워드가 포함되어 있는지 확인
+        # 질문에 추천 관련 키워드가 포함 확인
         is_recommendation = any(keyword in question for keyword in recommendation_keywords)
         
-        # 이자 계산 유형을 확인
+        # 이자 계산 유형 확인
         is_simple_interest = any(keyword in context for keyword in simple_interest_keywords)
         is_compound_interest = any(keyword in context for keyword in compound_interest_keywords)
         is_period_interest = any(keyword in context for keyword in period_interest_keywords)
 
-        # 이자 계산을 위한 few_shot 예시 프롬프트
-        # 각 이자 계산 방식을 명확히 설명하여 적용:
+        # 이자 계산을 위한 few_shot_example & CoT prompt
+        # 각 이자 계산 방식을 명확히 설명:
         
             # 단리 (Simple Interest)
                 # 원금에 대해서만 이자를 계산하는 방식
@@ -145,10 +144,8 @@ class Chatbot:
                 # 자유롭게 금액과 날짜를 선택해 입금하며, 이에 따른 이자가 매일 붙는 방식
                 # 만기 금액 = 입금액 * (1 + (연이자율 / 365) * 일수)
                 # 예시: 특정 날짜에 200,000원을 예치하고, 연이자율 4.1%, 만기까지 307일
-
-
         
-        # 세금 고려 사항까지 포함 
+            # 세금 고려 사항까지 포함 
         few_shot_prompt_examples = """
             You are to calculate different types of interest accurately and recommend the best product for the user.
             
@@ -292,8 +289,8 @@ class Chatbot:
 
             print("chat_history:", chat_history)
             
-            
 
+            # 요청 금융상품의 정보 분별
             if product_type == '예금':
                 product_type = '예금'
             elif product_type == '적금':
@@ -304,17 +301,18 @@ class Chatbot:
                 product_type = None
 
             print(product_type, "selected")
+
             # 응답을 받아오기 위한 프롬프트 생성
             prompt = f"질문: {question} 특히 {product_type}을 선호해\n응답:"
 
             # 기존 시스템 프롬프트와 새로 생성한 프롬프트를 통합
             full_prompt += f"\n{prompt}"
 
-            # 질문이 이자 계산과 관련된 경우, CoT prompt 추가 
+            # 질문이 이자 계산과 관련된 경우, 역할 재명시 
             if is_simple_interest or is_compound_interest or is_period_interest:
                 full_prompt += "\nPlease provide a step-by-step reasoning for calculating the interest based on the identified type (단리, 복리, 기간별 이자, 자유 적금). Apply the appropriate formula and provide the maturity amount.\n"
 
-            # CoT prompt
+            # few_shot_example 프롬프트 추가 
             full_prompt += few_shot_prompt_examples
 
             # 챗봇에게 구조화된 prompt 제공
@@ -363,7 +361,8 @@ class Chatbot:
 
 
     def retrieve_documents(self, query, top_k=5):    
-        # 사용자가 입력한 쿼리를 기반으로 관련 문서를 검색하는 함수
+        """사용자가 입력한 쿼리를 기반으로 관련 문서 검색 함수"""
+
         print(f"Query: {query}")
         search_result = self.retriever.invoke(query, top_k=top_k)
     
@@ -385,38 +384,7 @@ class Chatbot:
         return context
     
     def check_groundedness(self, context, response):
-        # 응답의 근거성(groundedness)을 검사하는 함수
+        """ 응답의 근거성(groundedness) 검사 함수 """
         groundedness_check = UpstageGroundednessCheck() 
         gc_result = groundedness_check.invoke({"context": context, "answer": response})
         return gc_result
-
-#향후 추가 활용될 코드
-    #def internet_search(query: str) -> str:
-        #외부검색엔진 활용하는 함수
-        #"""This is for query for internet search engine like Google.
-        #Query for general topics.
-        #"""
-        #tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-        #return tavily.search(query=query)
-    
-    #def is_in(self, question, context):
-        # 쿼리에 대한 답변이 context에 있는지 확인하기 위한 함수 정의
-        #is_in_prompt = PromptTemplate.from_template("""
-        #"""Please check if the answer to the question is in the context.
-        #CONTEXT: {context}
-        #QUESTION: {question}
-        #OUTPUT (yes or no):
-        #""")
-        
-        #chain = is_in_prompt | self.llm | StrOutputParser()
-        #esponse = chain.invoke({"context": context, "question": question})
-        #return response.lower().startswith("yes")
-
-    #def smart_rag(self, question, context):
-        # 쿼리에 대한 답변이 context에 없다면 외부 검색엔진(tavily)를 사용하기 위한 함수 정의
-        #if not self.is_in(question, context):
-            #print("Searching in external sources")
-            #tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-            #new_context = tavily.search(query=question)
-            #return new_context
-        #return context
