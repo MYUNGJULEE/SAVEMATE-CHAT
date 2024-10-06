@@ -15,22 +15,14 @@
 ### 프로젝트 배경
 복잡한 데이터 처리 없이 데이터로부터 필요한 정보를 ‘대화’를 통해 바로 얻어내고, 간편하게 맞춤형 상품을 추천받을 수 있다. 
 
+## Quick Start (streamlit.app 배포)
+https://savemate-chat1.streamlit.app/
+
 ## 설치 방법 'Running Locally 💻'
 Follow these steps to set up and run the service locally :
 
 ### Prerequisites
 - Python 3.11.2
-- Git
-
-##Quick Start (streamlit.app 배포)
-https://savemate-chat1.streamlit.app/
-
-
-## Running Locally 💻
-Follow these steps to set up and run the service locally :
-
-### Prerequisites
-- Python 3.8 or higher
 - Git
 
 ### Installation
