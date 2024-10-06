@@ -22,10 +22,6 @@ Follow these steps to set up and run the service locally :
 - Python 3.11.2
 - Git
 
-##Quick Start (streamlit.app 배포)
-https://savemate-chat1.streamlit.app/
-
-
 ## Running Locally 💻
 Follow these steps to set up and run the service locally :
 
