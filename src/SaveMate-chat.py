@@ -7,11 +7,10 @@ from modules.history import ChatHistory
 from modules.layout import Layout
 from modules.utils import Utilities
 from modules.sidebar import Sidebar
-# 추가
-#from modules.chatbot import Chatbot
+
 from langchain_core.messages import HumanMessage, AIMessage
 
-#To be able to update the changes made to modules in localhost (press r)
+# 로컬에서 모듈 업데이트 시 바로 반영되도록 리로드 기능 정의 (r 키를 눌러 새로 고침)
 def reload_module(module_name):
     import importlib
     import sys
@@ -19,30 +18,30 @@ def reload_module(module_name):
         importlib.reload(sys.modules[module_name])
     return sys.modules[module_name]
 
+# 필요한 모듈을 리로드하고 새로 가져옴
 history_module = reload_module('modules.history')
 layout_module = reload_module('modules.layout')
 utils_module = reload_module('modules.utils')
 sidebar_module = reload_module('modules.sidebar')
 
+# 리로드한 모듈에서 클래스 불러오기
 ChatHistory = history_module.ChatHistory
 Layout = layout_module.Layout
 Utilities = utils_module.Utilities
 Sidebar = sidebar_module.Sidebar
 
+# Streamlit 페이지 설정: 레이아웃은 'wide', 페이지 아이콘과 제목 설정
 st.set_page_config(layout="wide", page_icon="💬", page_title="금융상품 추천해주는 | Save Mate")
 
-# Instantiate the main components
-layout, sidebar, utils = Layout(), Sidebar(), Utilities()
+layout, sidebar, utils = Layout(), Sidebar(), Utilities() # 메인 컴포넌트 인스턴스 생성
+layout.show_header("금융상품을") # 페이지 헤더를 표시
 
-layout.show_header("금융상품을")
 
-# Get User ID from sidebar before proceeding
-Sidebar.get_user_id()
+Sidebar.get_user_id() # 진행 전 사이드바에서 유저 ID를 가져옴
 
-# Get product_type from sidebar before proceeding
-Sidebar.get_product_type()
+Sidebar.get_product_type() # 진행 전 사이드바에서 유저 ID를 가져옴
 
-user_api_key = "up_sE1q34hltAbAjZoAj0rfCmVIHh6Ws" #utils.load_api_key()
+user_api_key = utils.load_api_key()
 
 if not user_api_key:
     layout.show_api_key_missing()
@@ -56,111 +55,81 @@ else:
 
     if chat_flag:
 
-        # Configure the sidebar
+        # 사이드바 구성 설정
         sidebar.show_options()
-        #sidebar.about()
+        
 
-        # Initialize chat history
+        # 채팅 기록 초기화
         history = ChatHistory()
         try:
             print('try to set up chatbot')
 
-            # input parameter 삭제
-            #chatbot = utils.setup_chatbot( # setup_chatbot 해야 st.session_state['ready'] = True
-                # uploaded_file, st.session_state["model"], st.session_state["temperature"]
-            #    uploaded_file, 'model','temp'
-            #)
-            chatbot = utils.setup_chatbot()
-            st.session_state["chatbot"] = chatbot
+            chatbot = utils.setup_chatbot() # 챗봇 초기화 및 설정
+            st.session_state["chatbot"] = chatbot # 세션 상태에 챗봇 저장
 
             if st.session_state["ready"]:
-                # Create containers for chat responses and user prompts
+                # 채팅 응답 및 사용자 입력을 표시할 컨테이너 생성
                 response_container, prompt_container = st.container(), st.container()
 
                 print("1")
 
                 with prompt_container:
 
-                    # Display the prompt form
+                    # 프롬프트 폼 표시: 사용자 입력 및 제출 버튼 생성
                     is_ready, user_input = layout.prompt_form()
+                    history.initialize("topic")
 
-                    # Initialize the chat history
-                    # uploaded_file 없어도 되는지 확인
-                    history.initialize("uploaded_file")
-
-                    # Reset the chat history if button clicked
-                    # 채팅 리셋하는 기능 만들기
-                    #st.session_state["reset_chat"] = False
-                    
+                    # 채팅 리셋 버튼이 눌리면 기록을 초기화
                     if st.session_state["reset_chat"]:
-                        history.reset("uploaded_file")
+                        history.reset("topic")
                         print('Reset')
 
                     print('it is ready;', is_ready)
 
 
-
+                    # 제출 버튼이 눌리고 입력이 준비된 경우
                     if is_ready == True:
                 
                         print('if is_ready')
-                        # Update the chat history and display the chat messages
+
+                        # 채팅 기록 업데이트 및 메시지 표시
                         user_id = st.session_state.get("user_id", None)
-                        st.write(f"Debug: user_id from session state: {user_id}")
                         print(f"Debug: user_id from session state: {user_id}")
                         if not user_id: # 유저 아이디가 없다면 
                              st.warning("No User ID provided. Continuing in Guest Mode.")
-                        history.append("user", user_input)
+                        
+                        history.append("user", user_input) # 유저 입력을 기록에 추가
 
+                        # 금융상품 종류 가져오기
                         product_type = st.session_state.get("product_type", '적용안함')
-                        st.write(f"Debug: product_type from session state: {product_type}")
                         print(f"Debug: product_type from session state: {product_type}")
                         if product_type == '적용안함' : # 상품 적용 안했다면
                              st.warning("금융상품 종류가 입력되지 않았습니다. 기본 채팅모드로 진행합니다")
 
-                        #print('history append')
-
-                        #old_stdout = sys.stdout
-
-                        #print(old_stdout)
-
-                        #sys.stdout = captured_output = StringIO()
-
-                        #print(sys.stdout)
-
-
-
                         print('before output')
                         
-                        #output = st.session_state["chatbot"].conversational_chat(user_input)
-                        question = user_input
+                        question = user_input # 챗봇을 통한 사용자 질문 및 응답 생성
                         query = f"{question.lower()}"
+
+                        # 사용자 질문을 기반으로 문서 검색
                         context = st.session_state["chatbot"].retrieve_documents(query)
 
-                        # chat_history 가져오기
+                        # 이전 채팅 기록 가져오기
                         chat_history = st.session_state.get("history", [])
 
-                        output = st.session_state["chatbot"].generate_responses(question, context, st.session_state["history"], user_id=user_id, product_type=product_type) # session_state['history']
+                        # 챗봇이 응답을 생성 (질문, 문맥, 이전 대화 기록, 유저 ID, 금융상품 타입 사용)
+                        output = st.session_state["chatbot"].generate_responses(question, context, st.session_state["history"], user_id=user_id, product_type=product_type) 
 
                         # 질문과 답변을 저장한다
-                        #st.session_state["history"].append((query, output))
-                        #st.session_state["history"].append((HumanMessage(query), AIMessage(output)))
                         st.session_state["history"] += [HumanMessage(query), AIMessage(output)]
-
                         print('after output')
 
-                        #sys.stdout = old_stdout
-
+                        # 어시스턴트 응답을 채팅 기록에 추가
                         history.append("assistant", output)
 
-                        # Clean up the agent's thoughts to remove unwanted characters
-                        #thoughts = captured_output.getvalue()
-                        #cleaned_thoughts = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', thoughts)
-                        #cleaned_thoughts = re.sub(r'\[1m>', '', cleaned_thoughts)
 
-                        # Display the agent's thoughts
-                        #with st.expander("Display the agent's thoughts"):
-                        #    st.write(cleaned_thoughts)
-
+                # 생성된 메시지를 화면에 표시
                 history.generate_messages(response_container)
         except Exception as e:
+            # 예외가 발생할 경우 에러 메시지 표시
             st.error(f"Error: {str(e)}")
