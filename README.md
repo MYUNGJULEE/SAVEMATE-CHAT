@@ -61,9 +61,9 @@ cat .env
 ```
 
 
-Launch the chat service locally :
+Launch the chat service locally (로컬 주소로 바꾼 후 실행) :
 ```bash
-streamlit run /Users/imyungju/desktop/code_sh/CHATBOT_BASIC/src/SaveMate-chat.py #로컬 주소로 바꾼 후 실행
+streamlit run /Users/imyungju/desktop/code_sh/CHATBOT_BASIC/src/SaveMate-chat.py 
 ```
 #### That's it! The service is now up and running locally. 🤗
 
