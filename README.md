@@ -22,13 +22,6 @@ Follow these steps to set up and run the service locally :
 - Python 3.11.2
 - Git
 
-## Running Locally 💻
-Follow these steps to set up and run the service locally :
-
-### Prerequisites
-- Python 3.8 or higher
-- Git
-
 ### Installation
 Clone the repository :
 
