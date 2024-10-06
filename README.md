@@ -50,6 +50,12 @@ pip install --upgrade pip #빼도 됨
 pip install -r requirements.txt
 ```
 
+.env 파일 생성후 환경변수 설정 후 확인 (자신의 upstage api key로 변경)
+```bash
+echo UPSTAGE_API_KEY= up_1RO1Iau1STYJ6PyihOQmRUJyHtacD > .env
+cat .env
+```
+
 Launch the chat service locally :
 ```bash
 streamlit run /Users/imyungju/desktop/code_sh/CHATBOT_BASIC/src/SaveMate-chat.py #로컬 주소로 바꾼 후 실행
