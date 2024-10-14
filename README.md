@@ -53,8 +53,8 @@ pip install -r requirements.txt
 
 .env 파일 생성후 환경변수 설정 후 확인 (자신의 upstage api key로 변경)
 ```bash
-export UPSTAGE_API_KEY="up_1RO1Iau1STYJ6PyihOQmRUJyHtacD"
-echo UPSTAGE_API_KEY= up_1RO1Iau1STYJ6PyihOQmRUJyHtacD > .env
+export UPSTAGE_API_KEY="자신의_upstage_api_key"
+echo UPSTAGE_API_KEY= 자신의_upsatage_api_key > .env
 cat .env
 ```
 
