@@ -17,15 +17,21 @@ class Chatbot:
     #load_dotenv()
     UPSTAGE_API_KEY = os.getenv('UPSTAGE_API_KEY')
 
-    # 유효한 은행명과 상품명을 클래스 변수로 정의
+    #유효한 은행명과 상품명을 클래스 변수로 정의할 때 공백을 제거하여 처리
     predefined_valid_banks = ["신한은행", "KB국민은행", "NH농협은행", "하나은행", "우리은행"]
-    predefined_valid_products = ["신한 My플러스 정기예금", "KB국민ONE 정기예금", "NH농협 정기적금"]
+    predefined_valid_products = ["신한My플러스 정기예금", "신한My플러스 예금", "KB국민ONE 정기예금", "NH농협 정기적금"]
 
+    # 무시할 단어 목록을 추가 (예: '정기' 같은 단어)
+    ignore_words = ['정기']
 
     #10.14 수정
     def __init__(self, retriever_예금, retriever_적금, retriever_예금_적금, data=None): 
         """Chatbot 클래스의 초기화 함수"""
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        # 미리 제공된 유효한 은행명과 상품명에서 무시할 단어 제거 및 모든 공백 제거 후 저장
+        self.valid_banks = {self.clean_text(b) for b in self.predefined_valid_banks}
+        self.valid_products = {self.clean_text(p) for p in self.predefined_valid_products}
         
         # 리트리버를 금융상품별로 받음
         self.retriever_예금 = retriever_예금
@@ -95,8 +101,13 @@ class Chatbot:
         
         self.first_message_displayed = False  # Streamlit, 첫 메시지가 한 번만 출력되도록 설정
 
-
-
+    def clean_text(self, text):
+        """공백 제거 및 무시할 단어 삭제"""
+        # 공백과 무시할 단어를 모두 제거
+        cleaned_text = ''.join(text.split())  # 모든 공백 제거
+        for word in self.ignore_words:
+            cleaned_text = cleaned_text.replace(word, '')  # 무시할 단어 제거
+        return cleaned_text
 
 #10.14추가
     def is_response_valid(self, response, valid_banks, valid_products):
@@ -106,26 +117,28 @@ class Chatbot:
         #디버그
         print(f"Validating response:\n{response}\nAgainst valid banks: {valid_banks}\nAnd valid products: {valid_products}")
 
+        #응답내의 은행명, 상품명 검증
         for line in response.splitlines():
             if "은행명" in line:
-                bank = line.split(":")[1].strip()
+                bank = (line.split(":")[1].strip())
                 print(f"Bank found in response: {bank}")
-                if bank not in valid_banks:
-                    print(f"Invalid bank found: {bank}")
+
+                # 비교를 위한 clean_text를 사용하여 처리
+                bank_revised = self.clean_text(bank)  # 여기서 bank를 수정하지 않고 별도 변수로 처리
+                if bank_revised not in valid_banks:
+                    print(f"Invalid bank found: {bank_revised}")
                     return False
+                    
             if "상품명" in line:
                 product = line.split(":")[1].strip()
-                # 모든 공백 제거 (띄어쓰기, 탭, 줄바꿈 포함)
-                product_cleaned = ''.join(product.split())
-                valid_products_cleaned = {''.join(p.split()) for p in valid_products}
-
                 print(f"Product found in response: {product}")
-                if product not in valid_products:
-                    print(f"Invalid product found: {product}")
+                
+                # 비교를 위한 clean_text를 사용하여 처리
+                product_revised = self.clean_text(product)
+                if product_revised not in valid_products:
+                    print(f"Invalid product found: {product_revised}")
                     return False
         return True
-
-
 
 
     def get_user_details(self, user_id):
@@ -604,8 +617,8 @@ class Chatbot:
                 print(f"Number of documents retrieved: {len(search_result)}")
         
             extracted_texts = []
-            valid_banks = set()  # 추가수정: 유효한 은행명 저장
-            valid_products = set()  # 추가수정: 유효한 상품명 저장
+#            valid_banks = set()  # 추가수정: 유효한 은행명 저장
+#            valid_products = set()  # 추가수정: 유효한 상품명 저장
             for search in search_result:
                 soup = BeautifulSoup(search.page_content, "html.parser")
                 text = soup.get_text(separator="\n")
