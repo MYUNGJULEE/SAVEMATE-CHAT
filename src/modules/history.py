@@ -37,8 +37,8 @@ class ChatHistory:
             # 3. 금융 정보 질의응답 기능
         # 질문 에시와 대화 가이드라인 
 
-        #image_path = "./src/modules/img_folder/free-icon-golden-retriever-5374233.png"
-        image_path = "./src/modules/img_folder/how_to_chat.png"
+        image_path = "./src/modules/img_folder/free-icon-golden-retriever-5374233.png"
+        #image_path = "./src/modules/img_folder/how_to_chat.png"
         encoded_image = self.image_to_base64(image_path)
 
         prompt_text =  f"""사이드바에서 유저아이디/금융상품종류를 입력해주세요. 입력하지 않으면 게스트모드/일반채팅모드로 실행이 됩니다.
