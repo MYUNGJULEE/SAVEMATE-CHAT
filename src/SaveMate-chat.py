@@ -141,12 +141,13 @@ else:
                             st.session_state["product_button_click"] = None  # 상태를 초기화
 
                 # 생성된 메시지를 화면에 표시
-                user_message = history.generate_messages(response_container)
+                #user_message = history.generate_messages(response_container)
+                history.generate_messages(response_container)
 
-                if user_message: # None이 아닌 경우에만 실행
-                    print("user_message:", user_message)
-                    # history.append("user", user_message) # 유저 입력을 기록에 추가
-                    st.session_state["user_message"] = user_message
+                #if user_message: # None이 아닌 경우에만 실행
+                #    print("user_message:", user_message)
+                #    # history.append("user", user_message) # 유저 입력을 기록에 추가
+                #    st.session_state["user_message"] = user_message
 
         except Exception as e:
             # 예외가 발생할 경우 에러 메시지 표시
