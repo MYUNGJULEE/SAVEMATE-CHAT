@@ -172,7 +172,7 @@ class ChatHistory:
                         avatar_style="big-smile",
                     )
                     # 어시스턴트의 메시지 표시
-                    #message(st.session_state["assistant"][i], key=str(i), avatar_style="identicon")
+                    message(st.session_state["assistant"][i], key=str(i), avatar_style="identicon")
 
                     # 어시스턴트 메시지 (HTML로 이미지와 텍스트 포함)
                     #assistant_message = st.session_state["assistant"][i]
@@ -183,13 +183,13 @@ class ChatHistory:
                     #""", unsafe_allow_html=True)
 
                     # 어시스턴트의 메시지 표시 및 상품 정보 확인 후 버튼 생성
-                    assistant_message = st.session_state["assistant"][i]
-                    user_message = self.process_assistant_response(assistant_message)
+                    #assistant_message = st.session_state["assistant"][i]
+                    #user_message = self.process_assistant_response(assistant_message)
         # return something
         ## 무엇인가를 리턴하여 SaveMate-chat에서의 try 문이 문제없이 돌아가도록 한다
         
             #self.product_simulation()
-        return user_message
+        #return user_message
     
                     
 
