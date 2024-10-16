@@ -66,7 +66,7 @@ cat .env
 
 Launch the chat service locally (pwd코드로 로컬 주소 확인후 해당주소로 바꾼 후 실행) :
 ```bash
-streamlit run /Users/imyungju/desktop/code_sh/CHATBOT_BASIC/src/SaveMate-chat.py 
+streamlit run /Users/imyungju/desktop/SAVEMATE-CHAT/src/SaveMate-chat.py 
 ```
 
 
