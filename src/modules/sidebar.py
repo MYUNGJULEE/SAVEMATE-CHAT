@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import streamlit as st
 
 class Sidebar:
@@ -66,9 +69,10 @@ class Sidebar:
 
             # 사용자가 radio 버튼을 통해 금융 상품 종류를 선택
             product_type = st.radio(
-                '',
+                '추천받을 금융 상품 종류를 선택하세요:', # 라벨 추가 2024-10-13
                 ('적용안함', '예금', '적금', '예금 & 적금'), # 선택 가능한 옵션
-                index=('적용안함', '예금', '적금', '예금 & 적금').index(st.session_state['product_type'])  # 기본값 유지
+                index=('적용안함', '예금', '적금', '예금 & 적금').index(st.session_state['product_type']),  # 기본값 유지
+                label_visibility="collapsed"
             )
 
             # 선택한 상품 종류를 세션 상태에 저장

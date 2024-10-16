@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import streamlit as st
 
 class Layout:
@@ -51,3 +54,24 @@ class Layout:
 
         return is_ready, user_input
     
+    # 2024-10-13 추가
+    def prompt_form_2(self):
+        """
+         몇개 input 형태가 정해진 프롬프트 폼
+        """
+        with st.form(key="personal_form", clear_on_submit=True):
+            # 이름 입력란
+            name = st.text_input("Name")
+
+            # 나이 입력란
+            age = st.number_input("Age", min_value=0, max_value=120)
+
+            # 성별 선택란
+            sex = st.selectbox("Sex", options=["Male", "Female", "Other"])
+
+            # 사용자 입력 제출 버튼 생성
+            submit_button = st.form_submit_button(label="Submit")
+
+            # 제출 버튼이 눌렸는지 확인
+            if submit_button:
+                st.write(f"Name: {name}, Age: {age}, Sex: {sex}")    
