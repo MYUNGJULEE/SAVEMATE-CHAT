@@ -35,7 +35,7 @@ Clone the repository :
 
 Navigate to the project directory :
 
-`cd CHATBOT_BASIC`
+`cd SAVEMATE-CHAT`
 
 
 Create a virtual environment for Windows:
