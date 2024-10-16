@@ -4,7 +4,7 @@ class Layout:
 
     def show_api_key_missing(self):
         """
-        Displays a message if the user has not entered an API key
+         사용자에게 API 키가 설정되지 않았을 때 경고 메시지를 표시      
         """
         st.markdown(
             """
@@ -17,7 +17,7 @@ class Layout:
     
     def show_header(self, product_names):
         """
-        앱의 헤더를 표시하는 메서드
+        앱의 헤더를 표시
         """
         st.markdown(
             f"""
@@ -29,7 +29,7 @@ class Layout:
 
     def prompt_form(self):
         """
-         프롬프트 폼을 표시하는 메서드
+         프롬프트 폼을 표시
         """
         with st.form(key="my_form", clear_on_submit=True):
             # 텍스트 영역 생성: 유저가 질문을 입력할 수 있는 영역을 생성
@@ -51,3 +51,4 @@ class Layout:
 
         return is_ready, user_input
     
+ 
