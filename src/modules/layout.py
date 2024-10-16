@@ -1,13 +1,10 @@
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 import streamlit as st
 
 class Layout:
 
     def show_api_key_missing(self):
         """
-        Displays a message if the user has not entered an API key
+         사용자에게 API 키가 설정되지 않았을 때 경고 메시지를 표시      
         """
         st.markdown(
             """
@@ -20,7 +17,7 @@ class Layout:
     
     def show_header(self, product_names):
         """
-        앱의 헤더를 표시하는 메서드
+        앱의 헤더를 표시
         """
         st.markdown(
             f"""
@@ -32,7 +29,7 @@ class Layout:
 
     def prompt_form(self):
         """
-         프롬프트 폼을 표시하는 메서드
+         프롬프트 폼을 표시
         """
         with st.form(key="my_form", clear_on_submit=True):
             # 텍스트 영역 생성: 유저가 질문을 입력할 수 있는 영역을 생성
@@ -54,24 +51,4 @@ class Layout:
 
         return is_ready, user_input
     
-    # 2024-10-13 추가
-    def prompt_form_2(self):
-        """
-         몇개 input 형태가 정해진 프롬프트 폼
-        """
-        with st.form(key="personal_form", clear_on_submit=True):
-            # 이름 입력란
-            name = st.text_input("Name")
-
-            # 나이 입력란
-            age = st.number_input("Age", min_value=0, max_value=120)
-
-            # 성별 선택란
-            sex = st.selectbox("Sex", options=["Male", "Female", "Other"])
-
-            # 사용자 입력 제출 버튼 생성
-            submit_button = st.form_submit_button(label="Submit")
-
-            # 제출 버튼이 눌렸는지 확인
-            if submit_button:
-                st.write(f"Name: {name}, Age: {age}, Sex: {sex}")    
+ 

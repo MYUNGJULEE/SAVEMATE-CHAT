@@ -4,7 +4,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 import os
 import streamlit as st
 from streamlit_chat import message
-# 추가 2024-10-12
 import base64
 import re
 
@@ -27,7 +26,6 @@ class ChatHistory:
             encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
         return encoded_string
 
-    #def default_prompt(self, topic):
     def default_prompt(self, topic):
         # 챗봇의 기본 프롬프트 메시지 생성
         # 유저에게 상세한 가이드라인 제공 위함
@@ -193,22 +191,6 @@ class ChatHistory:
             #self.product_simulation()
         return user_message
     
-    # 2024-10-13 추가
-    def product_simulation(self):
-        with st.container():
-            st.write("사용자 정보를 입력하세요.")
-
-            # 이름 입력란
-            name = st.text_input("Name")
-
-            # 나이 입력란
-            age = st.number_input("Age", min_value=0, max_value=120)
-
-            # 성별 선택란
-            sex = st.selectbox("Sex", options=["Male", "Female", "Other"])
-        if st.button("submint"):
-            st.write(f"Name: {name}, Age: {age}, Sex: {sex}")
-
                     
 
     def load(self):
