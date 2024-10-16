@@ -18,12 +18,14 @@ load_dotenv()
 
 class Chatbot:
     """
-    Chatbot 클래스: 금융 상품에 대한 사용자 질문에 응답하고,
-    적절한 상품 추천 및 이자 계산을 지원하는 기능 제공.
+    통합 금융 챗봇 구현
+    사용자의 게좌 정보 조회
+    맞춤형 금융 상품 추천 및 이자 계산 
+    금융 상식 질의문답 수행
     """
     UPSTAGE_API_KEY = os.getenv('UPSTAGE_API_KEY')
 
-    # 유효한 은행명과 상품명을 정의하여 Hallucination 제거
+    # 유효한 은행명과 상품명을 정의하여 Hallucination 방지 
     predefined_valid_banks = ["NH농협은행", "하나은행", "우리은행", "KB국민은행", "토스은행", "신한은행", "카카오뱅크", "SBI저축은행", "K뱅크"]
     predefined_valid_products = ["행복 knowhow 연금예금", "트래블로그 여행 적금", "정기예금", "급여하나 월복리 적금", "NH직장인월복리적금", "NH장병내일준비적금", "NH올원e예금", "NH더하고나눔정기예금", "NH내가Green초록세상예금", 
                                  "WON플러스 예금", "WON 적금", "N일 적금(31일)", "우리 SUPER주거래 적금", "우리 첫거래우대 정기예금", "KB 국민 UP 정기예금", "KB 내맘대로적금", "KB 스타적금", "KB 장병내일준비적금", "직장인우대적금", 
@@ -40,7 +42,7 @@ class Chatbot:
         """
         
         # 기본 설정 및 초기화 
-        ## 💡 UPSTAGE CHAT MODEL ##
+        ## 💡 UPSTAGE CHAT MODEL 💡 ##
         self.llm= ChatUpstage(api_key = self.UPSTAGE_API_KEY, temperature= 0.0)
         self.base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.prompts_path = os.path.join(self.base_path, 'src', 'modules', 'prompts')
@@ -162,7 +164,7 @@ class Chatbot:
     def generate_responses(self, question, context, chat_history, user_id=None, product_type=None, max_retries=3):
         """
         사용자가 입력한 질문에 대한 응답 생성 (상품 및 은행명 검증 포함)
-        계좌 상태 확인, 상품 추천 및 이자 계산 여부에 따라 처리 방식을 다르게 적용 
+        계좌 상태 확인, 상품 추천 여부 및 상품 유형에 따라 이자 계산 방식 처리 방식을 다르게 적용 
 
         question (str): 사용자 쿼리
         context (str): 관련 PDF 내용 추출
@@ -263,7 +265,7 @@ class Chatbot:
 
         사용자 ID, 이자 계산 여부 등 다양한 조건을 반영하여 프롬프트를 동적으로 생성
         맞춤형 추천을 위해 사용자의 은행 잔액 정보 및 예금자 보호 한도를 고려하고
-        이자 계산 시에는 적절한 예시를 추가하여 사용자의 이해 도모
+        이자 계산 시에는 few shot 프롬프트를 이용하여 추가하여 모델 답변 생성에 도움
         """
 
         print(product_type, "selected")    
@@ -317,18 +319,18 @@ class Chatbot:
                 f"  Provide an alternative product from another bank, if applicable.\n"
             )
 
-            # 규칙 2: 객관적인 비교를 통해 최적의 상품 추천
+            # 규칙 2: 객관적인 비교를 통해 단 하나의 최적 상품 추천
             full_prompt += (
-                f"- **Compare all available products objectively**, regardless of the user's existing banks. "
-                f"Base your comparison on interest rates, bonuses, or other key features.\n"
+                f"- **Compare all available products objectively** and choose **one best fitting product** "
+                f"based on interest rates, bonuses, or other key features.\n"
+                f"Try to recommend only **one** product."
             )
 
             # 규칙 3: 사용자가 이미 이용 중인 은행 상품을 우선적으로 추천
             full_prompt += (
-                f"- If a product from one of the user's banks ({prioritized_banks}) is the best option, "
-                f"recommend it. If not, clearly explain the benefits of choosing another bank's product.\n"
+                f"- If a product from one of the user's banks ({prioritized_banks}) is a good fit, "
+                f"recommend it. If not, explain why another bank's product is a better choice, but still recommend **one** product.\n"
             )
-
             # 규칙 4: 항상 추천 이유를 명확하게 설명
             full_prompt += (
                 "- Provide an **objective and persuasive explanation** when suggesting a product, especially if it's not from the user's bank.\n"
@@ -341,6 +343,7 @@ class Chatbot:
             )
 
             # 문서의 컨텍스트 추가
+
             full_prompt += f"\nContext:\n{context}"
 
        # 이자 계산이 필요한 경우 few-shot 예제 추가
@@ -481,7 +484,7 @@ class Chatbot:
         응답이 주어진 문맥(context)과 일치하는지를 확인,
         챗봇의 응답이 근거 없는 내용(hallucination)을 포함하지 않도록 유도
         """
-        groundedness_check = UpstageGroundednessCheck() ## 💡 UPSTAGE MODEL ##
+        groundedness_check = UpstageGroundednessCheck() ## 💡 UPSTAGE MODEL 💡##
         gc_result = groundedness_check.invoke({"context": context, "answer": response})
         return gc_result
  
