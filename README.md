@@ -33,7 +33,7 @@ Clone the repository :
 `git clone https://github.com/MYUNGJULEE/SAVEMATE-CHAT`
 
 
-Navigate to the project directory :
+Navigate to the project directory (pwd하여 개인 주소창 확인후 필요시 SAVEMATE-CHAT 앞에 덧붙히기):
 
 `cd SAVEMATE-CHAT`
 
